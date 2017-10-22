@@ -1,0 +1,35 @@
+.game-controller .form-radio-input {
+  display: none; }
+
+.game-controller input[type="radio"]:checked + i {
+  opacity: 1;
+  border: #F4D03F 3px solid; }
+
+.game-controller label {
+  text-decoration: none;
+  color: black;
+  height: 50px;
+  font-size: 5em;
+  text-align: center;
+  display: inline-block; }
+
+.game-controller i {
+  border: white 3px solid;
+  opacity: .75;
+  background: #ccc;
+  padding: 25px; }
+  .game-controller i:hover, .game-controller i:focus {
+    opacity: 1; }
+
+.game-controller.winner i {
+  background: #87D37C; }
+
+.game-controller.loser i {
+  background: #CF000F; }
+
+.game-controller.tie i {
+  background: #F5D76E; }
+
+.game-controller.selected i {
+  opacity: 1;
+  border: #F4D03F 3px solid; }

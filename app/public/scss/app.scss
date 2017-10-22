@@ -1,0 +1,50 @@
+.game-controller {
+    .form-radio-input {
+        display: none;
+    }
+
+    input[type="radio"]:checked {
+        & + i {
+            opacity: 1;
+            border: #F4D03F 3px solid;
+        }
+    }
+
+    label {
+        text-decoration: none;
+        color: black;
+        height: 50px;
+        font-size: 5em;
+        text-align: center;
+        display: inline-block;
+    }
+
+    i {
+        border: white 3px solid;
+        opacity: .75;
+        background: #ccc;
+        padding: 25px;
+
+        &:hover,
+        &:focus {
+            opacity: 1;
+        }
+    }
+
+    &.winner i {
+        background: #87D37C;
+    }
+
+    &.loser i {
+        background: #CF000F;
+    }
+
+    &.tie i {
+        background: #F5D76E;
+    }
+
+    &.selected i {
+        opacity: 1;
+        border: #F4D03F 3px solid;
+    }
+}

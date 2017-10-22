@@ -1,0 +1,21 @@
+{
+  "name": "socketio-game",
+  "version": "1.0.0",
+  "description": "Hackathon project.",
+  "main": "index.js",
+  "scripts": {
+    "start": "gulp --gulpfile app/gulpfile.js"
+  },
+  "author": "Chris McGee",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-nodemon": "^2.2.1",
+    "gulp-plumber": "^1.1.0",
+    "gulp-watch": "^4.3.11"
+  },
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^1.7.3"
+  }
+}
