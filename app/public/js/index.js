@@ -9,6 +9,16 @@ socket.on('message', function(data) {
 
 socket.on('room joined', function(data) {
     console.log(data);
+    $('#joinRoomBtn').hide();
+    $('#leaveRoomBtn').show();
+    $('#roomIdInput').prop('disabled', true);
+});
+
+socket.on('room left', function(data) {
+    console.log(data);
+    $('#leaveRoomBtn').hide();
+    $('#joinRoomBtn').show();
+    $('#roomIdInput').prop('disabled', false);
 });
 
 $(document).ready(function(){
@@ -19,5 +29,9 @@ $(document).ready(function(){
 
     $('#readyBtn').click(function(){
         socket.emit('gameturn', $("input[type=radio][name=rps]:checked").val())
+    });
+
+    $('#leaveRoomBtn').click(function(){
+        socket.emit('leave room');
     });
 });

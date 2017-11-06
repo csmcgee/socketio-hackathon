@@ -46,6 +46,24 @@ function rockPaperScissors(game){
 
 }
 
+function leaveRoom(socketId) {
+  var roomId = jsonDB[socketId];
+  // was not in a room
+  if(!roomId)
+    return;
+
+  // remove from room open a spot
+  var index = jsonDB[roomId].room.indexOf(socketId);    
+  jsonDB[roomId].room.splice(index, 1);
+  delete jsonDB[roomId][socketId];
+
+  jsonDB[socketId] = null;
+  
+  // alert player
+  io.sockets.in(roomId).emit('message', {'msg': 'Player has left, spot open.'});
+  io.sockets.in(socketId).emit('room left', {'msg': 'Room left'});
+}
+
 // establish web socket connection
 io.on('connection', function (socket) {
 
@@ -71,14 +89,12 @@ io.on('connection', function (socket) {
       socket.join(data.roomId, function(){
         jsonDB[data.roomId].room.push(socket.id);
         jsonDB[socket.id] = data.roomId;
-        // sends a simple confirmation message
-        io.sockets.in(data.roomId).emit('message', 
-          {
-            socketId: socket.id,
-            msg: 'Room successfully joined.', 
-            roomId: data.roomId
-          }
-        );
+
+        io.sockets.in(socket.id).emit('room joined', {
+          socketId: socket.id,
+          msg: 'Room successfully joined.',
+          roomId: data.roomId
+        });
 
         if(jsonDB[data.roomId].room.length == 2)
           io.sockets.in(data.roomId).emit('game ready', {ready: true});
@@ -103,24 +119,13 @@ io.on('connection', function (socket) {
 
   });
 
+  socket.on('leave room', function(data) {
+    leaveRoom(socket.id);
+  });
+
   // on browser close, leave the room
   socket.on('disconnect', function(){
-    var roomId = jsonDB[socket.id];
-    // was not in a room
-    if(!roomId)
-      return;
-
-    // remove from room open a spot
-    var index = jsonDB[roomId].room.indexOf(socket.id);    
-    jsonDB[roomId].room.splice(index, 1);
-    delete jsonDB[roomId][socket.id];
-
-    // alert player
-    io.sockets.in(roomId).emit('message', {'msg': 'Player has left, spot open.'});
-  
-    jsonDB[socket.id] = null;
-
-
+    leaveRoom(socket.id);
   });
 
 });
