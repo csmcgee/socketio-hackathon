@@ -1,7 +1,18 @@
-web:
-  build: .
-  volumes:
-    - "./app:/src/app"
-  ports:
-    - "3000:3000"
-    - "9229:9229"
+version: '3'
+services:
+  web:
+    build: .
+    volumes:
+      - "./app:/src/app"
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    depends_on:
+      - db
+  db:
+    image: rethinkdb:latest
+    volumes:
+      - ".docker/rethinkdb:/data"
+    ports:
+      - "8080:8080"
+
