@@ -1,0 +1,32 @@
+#%RAML 1.0
+---
+# TODO: Install some RAML extensions for testing and viewing (html)
+title: Leaderboard API
+baseURI: http://api.leaderboard.com/{version}
+version: v1
+/games:
+    post:
+        description: |
+            Enter the two user ids for the winner and loser to create a game.
+        body:
+            application/json:
+                type: |
+                    {
+                        "type": "object",
+                        "required": true,
+                        "properties": {
+                            "winner": {
+                                "type": "string",
+                                "required": true
+                            },
+                            "loser": {
+                                "type": "string",
+                                "required": true
+                            }
+                        }
+                    }
+                example: |
+                    {
+                        "winner": "user1",
+                        "loser": "user2"
+                    }
