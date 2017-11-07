@@ -2,12 +2,52 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+var r = require('rethinkdb');
+var connection = null;
+
+/**
+ * Get all games user was in
+ * 
+ * r.table("games").filter(function(game) {
+ *  return game("players").contains("RM53_UA1wJU1duIrAAAC")
+ * });
+ * 
+ */
+
+/**
+* Get winning games
+* 
+* r.table('games').filter({winner: 'RM53_UA1wJU1duIrAAAC'})
+*
+*/
+
+/**
+ * Get games that were a draw
+ * 
+ * r.table("games").filter(function(game) {
+ *  return game("players").contains("RM53_UA1wJU1duIrAAAC")
+ * }).filter(function (game) {
+ *  return game.hasFields('winner').not();
+ * })
+ * 
+ */
+
 app.use(express.static('public'))
 
 server.listen(3000);
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
+});
+
+// TODO: change to use config file or something
+r.connect({ host: 'db', port: 28015 }, function(err, conn) {
+  if(err) throw err;
+  connection = conn;
+  r.db('test').tableCreate('games').run(connection, function(err, res) {
+    if(err)
+      return;
+  });
 });
 
 var jsonDB = {};
@@ -28,7 +68,7 @@ function rockPaperScissors(game){
 
   // d = 0, tie
   // d = 1, player at index 0 wins
-  // d = 2, player at index 2 wins
+  // d = 2, player at index 1 wins
   var d = (3 + game[game.room[0]] - game[game.room[1]]) % 3;
 
   game.room.forEach(function(player, index){
@@ -40,6 +80,18 @@ function rockPaperScissors(game){
     }else {
       io.sockets.in(player).emit('message', {'msg': 'LOSE'});
     }
+  });
+
+  var gameObj = {
+    players: game.room
+  };
+
+  if(d != 0)
+    gameObj.winner = game.room[d - 1];
+
+  r.table('games').insert(gameObj).run(connection, function(err, res) {
+    if(err) throw err;
+    console.log(res);
   });
 
   return true;
