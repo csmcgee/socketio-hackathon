@@ -111,7 +111,7 @@ module.exports = function(server) {
             jsonDB[roomId][socket.id] = data;
     
             if(rockPaperScissors(jsonDB[roomId])){
-            io.sockets.to(roomId).emit('gamecomplete');
+                io.sockets.to(roomId).emit('gamecomplete');
             }
     
         });

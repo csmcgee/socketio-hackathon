@@ -9,10 +9,15 @@ services:
       - "9229:9229"
     depends_on:
       - db
+      - redis
   db:
     image: rethinkdb:latest
     volumes:
       - ".docker/rethinkdb:/data"
     ports:
       - "8080:8080"
+  redis:
+    image: redis:latest
+    volumes:
+      - ".docker/redis:/data"
 
