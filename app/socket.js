@@ -1,10 +1,13 @@
 module.exports = function(server) {
     var io = require('socket.io')(server);
     
+    // almighty dependency
+    var Promise = require('bluebird');
+    
     // TODO: This should be an interface or adapter of some sort
     var r = require('rethinkdb');
-    var redis = require("redis"),
-    redis_client = redis.createClient({
+    var redis = Promise.promisifyAll(require("redis"));
+    var redis_client = redis.createClient({
         'host': 'redis'
     });
 
@@ -12,8 +15,15 @@ module.exports = function(server) {
     var roomLib = require('./room/room.socket.js');
     var gameLib = require('./game/async.game.socket.js');
 
+
     redis_client.on("error", function (err) {
         console.log("Error " + err);
+    });
+
+    // clear redis on connection, on socket server setup
+    redis_client.flushdbAsync().then(function(err, response) {
+        if(err)
+            console.log(err);
     });
     
     /**
@@ -49,22 +59,15 @@ module.exports = function(server) {
         connection = conn;
         r.db('test').tableCreate('games').run(connection, function(err, res) {
             if(err)
-            return;
+                return;
         });
     });
-      
-    var jsonDB = {};
-    
-    var example = {
-    'players': [],
-    }
-      
-      
+
     // establish web socket connection
     io.on('connection', function (socket) {
         var eventHandlers = {
             'room': new roomLib.RoomSocket(socket, io, server, redis, redis_client), // why is "new" required here
-            'game': new gameLib.GameSocket(socket, io, server, redis, redis_client, connection, r),
+            'game': new gameLib.GameSocket(socket, io, server, redis, redis_client, connection, r, Promise),
         };
 
         for(var category in eventHandlers) {

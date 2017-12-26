@@ -1,4 +1,4 @@
-module.exports.GameSocket = function(socket, io, app, redis, client, connection, r) {
+module.exports.GameSocket = function(socket, io, app, redis, client, connection, r, Promise) {
 
     this.handlers = {
         'gameturn': gameturn.bind(this),
@@ -19,7 +19,7 @@ module.exports.GameSocket = function(socket, io, app, redis, client, connection,
                 throw new Error("Too many players");
 
             
-            // get their data
+            // get their data   
             client.hgetall(socketIds[0], function (err, player1) {
                 if(err)
                     throw new Error("Error when retrieving player 1 data.");
@@ -27,13 +27,13 @@ module.exports.GameSocket = function(socket, io, app, redis, client, connection,
                     if(err)
                         throw new Error("Error when retrieving player 2 data.");
 
-                    if(!player1.data || !player2.data)
+                    if(typeof eval(player1.data) != "number" || typeof eval(player2.data) != "number")
                         return false;
 
                     // d = 0, tie
                     // d = 1, player at index 0 wins
                     // d = 2, player at index 1 wins
-                    var d = (3 + player1.data - player2.data) % 3;
+                    var d = (3 + eval(player1.data) - eval(player2.data)) % 3;
                     
                     var winners = null;
                     socketIds.forEach(function(player, index){
@@ -58,6 +58,14 @@ module.exports.GameSocket = function(socket, io, app, redis, client, connection,
                     r.table('games').insert(gameObj).run(connection, function(err, res) {
                         if(err) throw err;
                             console.log(res);
+                        var players = [];
+                        socketIds.forEach(function(player) {
+                            players.push(client.hmsetAsync([player, "data", null]));
+                        });
+
+                        Promise.all(players).then(function() {
+                            io.sockets.in(roomId).emit('game over');
+                        });
                     });
 
 
@@ -72,10 +80,6 @@ module.exports.GameSocket = function(socket, io, app, redis, client, connection,
     }
 
     function gameturn(data) {
-        console.log(socket.id);
-        console.log(data);
-
-
         client.hmset([socket.id, "data", data], function (err, res) {
             client.hgetall(socket.id, function (err, obj) {
                 rockPaperScissors(obj.roomId);

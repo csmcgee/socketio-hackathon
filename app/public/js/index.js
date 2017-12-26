@@ -21,6 +21,11 @@ socket.on('room left', function(data) {
     $('#roomIdInput').prop('disabled', false);
 });
 
+socket.on('game over', function(data) {
+    console.log(data);
+    $("input[type=radio][name=rps]:checked").prop('checked', false);
+});
+
 $(document).ready(function(){
 
     $('#joinRoomBtn').click(function(){
