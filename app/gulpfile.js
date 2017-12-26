@@ -8,7 +8,7 @@ gulp.task('develop', function () {
     script: 'app.js', 
     ext: 'js hjs json', 
     legacyWatch: true, 
-    'exec': 'node --inspect=0.0.0.0:9229' });
+    'exec': 'node --inspect=0.0.0.0:5858' });
 });
 
 // gulp.task('sass', function() {

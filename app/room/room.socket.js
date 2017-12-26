@@ -1,16 +1,6 @@
-var redis = require("redis"),
-client = redis.createClient({
-    'host': 'redis'
-});
-
 // if you'd like to select database 3, instead of 0 (default), call
 // client.select(3, function() { /* ... */ });
-
-client.on("error", function (err) {
-    console.log("Error " + err);
-});
-
-module.exports.RoomSocket = function(socket, io, app) {
+module.exports.RoomSocket = function(socket, io, app, redis, client) {
 
     this.handlers = {
         'join room': joinRoom.bind(this),
@@ -35,7 +25,7 @@ module.exports.RoomSocket = function(socket, io, app) {
                     return;
 
                 socket.join(data.roomId, function(){
-                    client.set(socket.id, data.roomId, redis.print);
+                    client.hmset([socket.id, "roomId", data.roomId])
                     client.rpush(["room"+data.roomId, socket.id], redis.print);
     
                     io.sockets.in(socket.id).emit('room joined', {

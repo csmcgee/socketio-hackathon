@@ -1,8 +1,20 @@
 module.exports = function(server) {
     var io = require('socket.io')(server);
+    
+    // TODO: This should be an interface or adapter of some sort
     var r = require('rethinkdb');
+    var redis = require("redis"),
+    redis_client = redis.createClient({
+        'host': 'redis'
+    });
+
     var connection = null;
     var roomLib = require('./room/room.socket.js');
+    var gameLib = require('./game/async.game.socket.js');
+
+    redis_client.on("error", function (err) {
+        console.log("Error " + err);
+    });
     
     /**
      * Get all games user was in
@@ -47,52 +59,12 @@ module.exports = function(server) {
     'players': [],
     }
       
-    function rockPaperScissors(game){
-        if(game.room.length < 2)
-            return false;
-    
-        if(game.room.length > 2)
-            throw new Error("Too many players");
-    
-        if(!game[game.room[0]] || !game[game.room[1]])
-            return false;
-    
-        // d = 0, tie
-        // d = 1, player at index 0 wins
-        // d = 2, player at index 1 wins
-        var d = (3 + game[game.room[0]] - game[game.room[1]]) % 3;
-    
-        game.room.forEach(function(player, index){
-            if(d == 0)
-            return io.sockets.in(player).emit('message', {'msg': 'DRAW'});
-    
-            if((d == 1 && index == 0) || (d == 2 && index == 1)){
-            io.sockets.in(player).emit('message', {'msg': 'WIN'});
-            }else {
-            io.sockets.in(player).emit('message', {'msg': 'LOSE'});
-            }
-        });
-    
-        var gameObj = {
-            players: game.room
-        };
-    
-        if(d != 0)
-            gameObj.winner = game.room[d - 1];
-    
-        r.table('games').insert(gameObj).run(connection, function(err, res) {
-            if(err) throw err;
-            console.log(res);
-        });
-    
-        return true;
-    
-    }
       
     // establish web socket connection
     io.on('connection', function (socket) {
         var eventHandlers = {
-            'room': new roomLib.RoomSocket(socket, io, server) // why is "new" required here
+            'room': new roomLib.RoomSocket(socket, io, server, redis, redis_client), // why is "new" required here
+            'game': new gameLib.GameSocket(socket, io, server, redis, redis_client, connection, r),
         };
 
         for(var category in eventHandlers) {
@@ -101,20 +73,5 @@ module.exports = function(server) {
                 socket.on(event, handler[event]);
             }
         }
-
-        socket.on('gameturn', function(data) {
-            var roomId = jsonDB[socket.id];
-            // if not in a room then this is not valid
-            if(!roomId)
-            return;
-    
-            jsonDB[roomId][socket.id] = data;
-    
-            if(rockPaperScissors(jsonDB[roomId])){
-                io.sockets.to(roomId).emit('gamecomplete');
-            }
-    
-        });
-    
     });
 }

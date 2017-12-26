@@ -6,7 +6,7 @@ services:
       - "./app:/src/app"
     ports:
       - "3000:3000"
-      - "9229:9229"
+      - "5858:5858"
     depends_on:
       - db
       - redis
@@ -20,4 +20,12 @@ services:
     image: redis:latest
     volumes:
       - ".docker/redis:/data"
+# Only when necessary for debugging
+  redisCommander:
+    image: tenstartups/redis-commander
+    command: --redis-host redis
+    links:
+      - redis:redis
+    ports:
+      - "8081:8081"
 
