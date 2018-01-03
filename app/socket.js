@@ -1,11 +1,9 @@
-module.exports = function(server) {
+module.exports = function(server, r) {
     var io = require('socket.io')(server);
     
     // almighty dependency
     var Promise = require('bluebird');
-    
-    // TODO: This should be an interface or adapter of some sort
-    var r = require('rethinkdb');
+
     var redis = Promise.promisifyAll(require("redis"));
     var redis_client = redis.createClient({
         'host': 'redis'
@@ -51,17 +49,6 @@ module.exports = function(server) {
      * })
      * 
      */
-    
-    
-    // TODO: change to use config file or something
-    r.connect({ host: 'db', port: 28015 }, function(err, conn) {
-        if(err) throw err;
-        connection = conn;
-        r.db('test').tableCreate('games').run(connection, function(err, res) {
-            if(err)
-                return;
-        });
-    });
 
     // establish web socket connection
     io.on('connection', function (socket) {

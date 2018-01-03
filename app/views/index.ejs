@@ -1,0 +1,45 @@
+<% include ./partials/header %>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <h2>
+        <span class="text-success">W</span>-<span class="text-danger">L</span>-<span class="text-warning">T</span>: 
+        <span class="win text-success">2</span>/<span class="loss text-danger">1</span>/<span class="tie text-warning">1</span>
+      </h2>
+    </div>
+  </div>
+  <div class="form-inline">
+    <div class="form-group">
+      <label for="roomIdInput">Room Id:</label>
+      <input type="text" class="form-control" placeholder="roomId" id="roomIdInput" name="roomIdInput">
+      <button type="submit" id="joinRoomBtn" class="btn btn-default">Join Room</button>
+      <button type="submit" id="leaveRoomBtn" class="btn btn-default" style="display: none">Leave Room</button>
+    </div>
+  </div>
+  <div class="game-container">
+    <div class="game-component">
+      <div class="game-controller">
+        <div class="form-radio radio-inline">
+          <label class="form-radio-label" for="rock">
+            <input class="form-radio-input" name="rps" type="radio" id="rock" value="0"> <i class="fa fa-hand-rock-o" aria-hidden="true"></i>
+          </label>
+        </div>
+        <div class="form-radio radio-inline">
+          <label class="form-radio-label" for="paper">
+            <input class="form-radio-input" name="rps" type="radio" id="paper" value="1"> <i class="fa fa-hand-paper-o" aria-hidden="true"></i>
+          </label>
+        </div>
+        <div class="form-radio radio-inline">
+          <label class="form-radio-label" for="scissors">
+            <input class="form-radio-input" name="rps" type="radio" id="scissors" value="2"> <i class="fa fa-hand-scissors-o" aria-hidden="true"></i>
+          </label>
+        </div>
+        <button type="submit" id="readyBtn" class="btn btn-primary">Shoot!</button>
+      </div>
+      </div>
+
+
+
+  </div>
+</div>
+<% include ./partials/footer %>
